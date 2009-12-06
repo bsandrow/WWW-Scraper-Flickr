@@ -33,7 +33,10 @@ sub fetch {
     die "No content" unless $page;
     $self->{tree}->parse($page);
 
-    $self->{content}->{tags} = $self->_grabTags();
+    $self->{content}->{tags}       = $self->_grabTags();
+    $self->{content}->{licenseurl} = $self->_grabLicenseUrl();
+    $self->{content}->{attriburl}  = $self->_grabAttribUrl();
+    $self->{content}->{creator}    = $self->_grabCreator();
 
     # XXX need to return path to the image file or undef
     return;
@@ -63,3 +66,35 @@ sub _grabTags {
     );
     return [split /, /, $keywords->attr('content')];
 }
+
+sub _grabLicenseUrl {
+    my $self = shift;
+    my @elements = $self->{tree}->look_down(
+        '_tag' => 'a',
+        'rel'  => qr/cc:license/,
+    );
+    die "Error parsing! There are mutliple elements with 'cc:license'." if scalar @elements > 1;
+    return $elements[0]->attr('href');
+}
+
+sub _grabAttribUrl {
+    my $self = shift;
+    my (@elements) = $self->{tree}->look_down(
+        '_tag' => 'a',
+        'rel'  => qr/cc:attributionURL/,
+    );
+    die "Bad content! Multiple cc:attributionURL elements!" if scalar @elements > 1;
+    return "http://www.flickr.com" . $elements[0]->attr('href');
+}
+
+sub _grabCreator {
+    my $self     = shift;
+    my @elements = $self->{tree}->look_down(
+        '_tag'     => 'b',
+        'property' => 'foaf:name',
+    );
+    die "Bad content! Multiple elements tagged with 'foaf:name'." if scalar @elements > 1;
+    return join ' ', @{$elements[0]->content()};
+}
+
+1;
