@@ -17,6 +17,7 @@ sub new {
 
     $self->{ua}  = $args->{ua} ? $args->{ua} : _getUserAgent();
     $self->{tree}= HTML::Tree->new();
+    $self->{content} = {};
 
     return bless($self,$class);
 }
@@ -31,7 +32,9 @@ sub fetch {
     my $page = $self->_grabContent($args->{url});
     die "No content" unless $page;
     $self->{tree}->parse($page);
-    $self->_grabTags();
+
+    $self->{content}->{tags} = $self->_grabTags();
+
     # XXX need to return path to the image file or undef
     return;
 }
