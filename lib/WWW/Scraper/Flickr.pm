@@ -3,7 +3,6 @@ package WWW::Scraper::Flickr;
 use strict;
 use warnings;
 
-use Cwd;
 use LWP::UserAgent;
 use Carp qw/
     croak
@@ -35,5 +34,6 @@ sub fetch {
     croak "No URL supplied!" unless $args->{url};
     croak "No output directory supplied!" unless $args->{dir};
 
-    
+    # XXX need to return path to the image file or undef
+    return;
 }
