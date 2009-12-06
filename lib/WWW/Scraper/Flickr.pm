@@ -37,6 +37,8 @@ sub fetch {
     $self->{content}->{licenseurl} = $self->_grabLicenseUrl();
     $self->{content}->{attriburl}  = $self->_grabAttribUrl();
     $self->{content}->{creator}    = $self->_grabCreator();
+    $self->{content}->{uploaddate} = $self->_grabUploadDate();
+    $self->{content}->{simpledesc} = $self->_grabSimpleDesc();
 
     # XXX need to return path to the image file or undef
     return;
@@ -95,6 +97,32 @@ sub _grabCreator {
     );
     die "Bad content! Multiple elements tagged with 'foaf:name'." if scalar @elements > 1;
     return join ' ', @{$elements[0]->content()};
+}
+
+sub _grabUploadDate {
+    my $self     = shift;
+    my @elements = $self->{tree}->look_down(
+        '_tag'      => 'a',
+        'property'  => qr/dc:date/,
+    );
+    die "Bad content! Multiple items tagged with dc:date." if scalar @elements > 1;
+    return join ' ', @{$elements[0]->content()};
+}
+
+sub _grabSimpleDesc {
+    # called 'simple' desc because it strips out a lot of context that the
+    # 'full' description could have (like links). Though we are converting to
+    # text to insert into metadata anyways, keeping urls in there by converting
+    # <a href="google">Google</a> -> (Google)[google] would help out in *not*
+    # loosing a bunch of content. At some point a _grabLongDesc() will make
+    # it's way into here.
+    my $self = shift;
+    my @elements = $self->{tree}->look_down(
+        '_tag' => 'meta',
+        'name' => 'description',
+    );
+    die "Bad content! Multiple <meta name=\"description\"...> tags!" if scalar @elements > 1;
+    return $elements[0]->attr('content');
 }
 
 1;
