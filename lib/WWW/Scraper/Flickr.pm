@@ -234,4 +234,28 @@ sub _cleanup {
 
     return;
 }
+
 1;
+
+=head1 NAME
+
+WWW::Scraper::Flickr - A flickr.com scraper
+
+=head1 SYNOPSIS
+
+Module to download images from flickr.com with information from the photo page
+inserted into the image file metadata.
+
+=head1 VERSION
+
+Version 0.1
+
+=head1 AUTHOR
+
+Brandon Sandrowicz <brandon@sandrowicz.org>
+
+=head1 License
+
+MIT License
+
+=cut
