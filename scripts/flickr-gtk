@@ -4,5 +4,5 @@ directory=$(zenity --file-selection --directory --filename="$HOME" --title="Sele
 urllist_file=$(mktemp)
 url_list=$(zenity --text-info --filename="$urllist_file" --editable)
 echo "$url_list" > "$urllist_file"
-cat "$urllist_file" | ./flickr -d "$directory" -
+cat "$urllist_file" | flickr -d "$directory" -
 rm "$urllist_file"
