@@ -1,4 +1,4 @@
 *.swp
 META.yml
-Makefile$
+Makefile
 inc/
