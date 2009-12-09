@@ -1,0 +1,82 @@
+#!/usr/bin/perl -I../lib
+
+use strict;
+use warnings;
+
+use Cwd;
+use Getopt::Long;
+use WWW::Scraper::Flickr;
+
+our $VERSION = 0.1;
+our $VERSION_STRING = "Flickr Getter $VERSION - a flickr photo fetcher";
+
+sub main
+{
+    my $opts = proc_opts();
+    my $scraper = WWW::Scraper::Flickr->new();
+
+    $scraper->toggleVerbosity($opts->{verbose}) if $opts->{verbose};
+
+    if ($opts->{stdin}) {
+        while(<STDIN>) {
+            chomp;
+            push @{$opts->{urls}}, $_;
+        }
+    }
+
+    for (@{ $opts->{urls} }) {
+        print "Fetching '$_'.\n";
+        $scraper->fetch({
+            dir => $opts->{dir},
+            url => $_,
+        });
+    }
+}
+
+sub usage
+{
+    my $return_code = shift;
+    print STDERR <<EOF;
+$VERSION_STRING
+Usage: flickr [OPTION] PHOTO_URL1 [PHOTO_URL2] [PHOTO_URL3] [...]
+
+Options:
+  -h,  --help           display this help message
+  -v,  --version        display version
+  -d,  --dir            the directory to download the file to
+EOF
+    exit defined($return_code) ? $return_code : 1;
+}
+
+sub version
+{
+    my $exit_code = shift;
+    print "$VERSION_STRING\n";
+    exit defined($exit_code) ? $exit_code : 0;
+}
+
+sub proc_opts
+{
+    my $h = {};
+    my $opts = {};
+    GetOptions($h,
+        'help|h',
+        'version',
+        'verbose|v',
+        'dir|d=s',
+    ) or usage(1);
+    usage(1)   if $h->{help};
+    version(0) if $h->{version};
+    usage(1)   if scalar @ARGV < 1;
+
+    $opts->{urls} = [];
+    for (@ARGV) {
+        if(/^-$/) { $opts->{stdin} = 1;        }
+        else      { push @{$opts->{urls}}, $_; }
+    }
+    $opts->{dir}  = $h->{dir} ? $h->{dir} : getcwd();
+    $opts->{verbose} = $h->{verbose};
+    return $opts;
+}
+
+main();
