@@ -1,0 +1,30 @@
+WWW-Scraper-Flickr
+==================
+
+This modules enables you to scrape metadata of Flickr pictures
+and even download images.
+
+Please use it for personal and good endeavours only. (Everything
+else would not be allowed by Flickr's TOS anyway.)
+Always remember to to make the Internets a better place for all of us.
+
+
+USAGE
+
+You'll probably use this module via the included scripts. Have a look
+into the script dir for source and they'll be installed by default.
+
+INSTALLATION
+
+Nothing special. To install this module type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+COPYRIGHT AND LICENCE
+
+Brandon Sandrowicz <brandon@sandrowicz.org>
+
+MIT License.

@@ -17,6 +17,9 @@ sub main
 
     $scraper->toggleVerbosity($opts->{verbose}) if $opts->{verbose};
 
+    $scraper->setProxy($opts->{'proxy'}) if $opts->{'proxy'};
+    $scraper->setUserAgent($opts->{'user-agent'}) if $opts->{'user-agent'};
+
     if ($opts->{stdin}) {
         while(<STDIN>) {
             chomp;
@@ -24,12 +27,18 @@ sub main
         }
     }
 
-    for (@{ $opts->{urls} }) {
-        print "Fetching '$_'.\n";
-        $scraper->fetch({
-            dir => $opts->{dir},
-            url => $_,
-        });
+    for( @{ $opts->{urls} } ){
+	if( $_ =~ /www\.flickr\.com\/photos\/[^\/]+\/$/){
+		print "flickr: fetching [collection] '$_'.\n";
+		push(@{ $opts->{urls} }, $scraper->collection($_) );
+	}else{
+		print "flickr: fetching [photo] '$_'.\n";
+		$scraper->fetch({
+			dir => $opts->{dir},
+			'user-dir' => $opts->{'user-dir'},
+			url => $_,
+		});
+	}
     }
 }
 
@@ -41,9 +50,12 @@ $VERSION_STRING
 Usage: flickr [OPTION] PHOTO_URL1 [PHOTO_URL2] [PHOTO_URL3] [...]
 
 Options:
-  -h,  --help           display this help message
-  -v,  --version        display version
-  -d,  --dir            the directory to download the file to
+  -h, --help           display this help message
+  -p, --proxy          Use the stated proxy
+  --version            display version
+  -v, --verbose        be verbose, repeat for even more verbosity (1-3x)
+  -d, --dir            the directory to download the file to
+  --user-dir           dl into a per-user directory
 EOF
     exit defined($return_code) ? $return_code : 1;
 }
@@ -61,9 +73,12 @@ sub proc_opts
     my $opts = {};
     GetOptions($h,
         'help|h',
+        'proxy|p=s',
         'version',
-        'verbose|v',
+        'verbose|v+',
+        'user-agent=s',
         'dir|d=s',
+        'user-dir',
     ) or usage(1);
     usage(1)   if $h->{help};
     version(0) if $h->{version};
@@ -74,8 +89,11 @@ sub proc_opts
         if(/^-$/) { $opts->{stdin} = 1;        }
         else      { push @{$opts->{urls}}, $_; }
     }
-    $opts->{dir}  = $h->{dir} ? $h->{dir} : getcwd();
-    $opts->{verbose} = $h->{verbose};
+    $opts->{'dir'}  = $h->{'dir'} ? $h->{'dir'} : getcwd();
+    $opts->{'verbose'} = $h->{verbose};
+    $opts->{'user-agent'} = $h->{'user-agent'};
+    $opts->{'proxy'} = $h->{'proxy'};
+    $opts->{'user-dir'} = $h->{'user-dir'};
     return $opts;
 }
 

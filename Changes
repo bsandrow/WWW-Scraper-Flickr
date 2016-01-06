@@ -1,0 +1,13 @@
+
+2015-12-06:
+ - adapted to recent flickr HTML
+ - parse collections and fetch all photos from a photostream
+ - some dead-ends, like an attempt to dl videos
+ - changed how exiftool is invoked
+ - added 'user-dir' to store images into one dir per user
+ - added proxy support and user-agent string modification
+ - basic file exists check
+ - adjust mtime to be time uploaded
+
+2009-12-09:
+ - initial commit
